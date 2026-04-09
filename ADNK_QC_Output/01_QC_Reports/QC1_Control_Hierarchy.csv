@@ -1,0 +1,5 @@
+"Batch","Antigen","HIV_neg","N6_bnAb","PBS","PBS_lt_N6","PBS_lt_HIVneg","Hierarchy_OK"
+"Batch 1","gp120",0.0596,0.155,0.0563333333333333,TRUE,TRUE,TRUE
+"Batch 1","p24",0.103,0.157,0.0827,TRUE,TRUE,TRUE
+"Batch 2","gp120",0.0441,0.0508,0.038,TRUE,TRUE,TRUE
+"Batch 2","p24",0.0401,0.0417,0.0363,TRUE,TRUE,TRUE

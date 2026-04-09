@@ -1,0 +1,4 @@
+Batch 1 gp120: PBS=0.0563, HIV_neg=0.0596, N6=0.1550  [PASS]
+Batch 1 p24: PBS=0.0827, HIV_neg=0.1030, N6=0.1570  [PASS]
+Batch 2 gp120: PBS=0.0380, HIV_neg=0.0441, N6=0.0508  [PASS]
+Batch 2 p24: PBS=0.0363, HIV_neg=0.0401, N6=0.0417  [PASS]

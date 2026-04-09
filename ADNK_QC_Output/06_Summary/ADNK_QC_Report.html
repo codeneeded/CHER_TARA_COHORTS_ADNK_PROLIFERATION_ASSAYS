@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADNK Assay QC Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6; 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 20px;
+      background: #f8f9fa;
+      color: #333;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+    h2 { color: #34495e; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 40px; }
+    h3 { color: #7f8c8d; margin-top: 25px; }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .stat-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-box.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .stat-box.orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .stat-box.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .stat-number { font-size: 2.5em; font-weight: bold; }
+    .stat-label { font-size: 0.9em; opacity: 0.9; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin: 15px 0;
+      background: white;
+    }
+    th, td { 
+      padding: 12px 15px; 
+      text-align: left; 
+      border-bottom: 1px solid #ddd; 
+    }
+    th { 
+      background: #34495e; 
+      color: white; 
+      font-weight: 500;
+    }
+    tr:hover { background: #f5f5f5; }
+    .pass { color: #27ae60; font-weight: bold; }
+    .fail { color: #e74c3c; font-weight: bold; }
+    .warn { color: #f39c12; font-weight: bold; }
+    .info-box {
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .warning-box {
+      background: #fef9e7;
+      border-left: 4px solid #f1c40f;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .success-box {
+      background: #eafaf1;
+      border-left: 4px solid #27ae60;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .formula {
+      background: #f4f4f4;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-family: "Courier New", monospace;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+    img { 
+      max-width: 100%; 
+      height: auto; 
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 10px 0;
+    }
+    .img-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    .toc {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .toc ul { list-style: none; padding-left: 0; }
+    .toc li { padding: 5px 0; }
+    .toc a { color: #3498db; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: #7f8c8d;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+<h1>ADNK Assay QC Report</h1>
+<p><strong>Generated:</strong> 
+2026-04-09 11:51:24
+</p>
+
+<div class="toc card">
+  <h3>Contents</h3>
+  <ul>
+    <li><a href="#overview">1. Data Overview</a></li>
+    <li><a href="#controls">2. Control Performance</a></li>
+    <li><a href="#qc-checks">3. QC Checks</a></li>
+    <li><a href="#normalization">4. Normalization Strategy</a></li>
+    <li><a href="#batch-correction">5. Batch Correction Results</a></li>
+    <li><a href="#outputs">6. Output Files</a></li>
+  </ul>
+</div>
+
+<!-- ===== SECTION 1: DATA OVERVIEW ===== -->
+<h2 id="overview">1. Data Overview</h2>
+
+<div class="card">
+  <h3>Study Design</h3>
+  <p>This dataset contains ADNK (Antibody-Dependent NK cell) functional assay data from two pediatric HIV cohorts:</p>
+  
+  <table>
+    <tr>
+      <th>Cohort</th>
+      <th>Design</th>
+      <th>Subjects</th>
+      <th>Samples</th>
+      <th>Key Question</th>
+    </tr>
+    <tr>
+      <td><strong>CHER</strong></td>
+      <td>Longitudinal, treatment interruption</td>
+      <td>
+22
+</td>
+      <td>
+124
+</td>
+      <td>How does ADCC change across treatment phases?</td>
+    </tr>
+    <tr>
+      <td><strong>TARA</strong></td>
+      <td>Cross-sectional</td>
+      <td>
+23
+</td>
+      <td>
+46
+</td>
+      <td>Does viral suppression status affect ADCC?</td>
+    </tr>
+  </table>
+</div>
+
+<div class="summary-grid">
+  <div class="stat-box">
+    <div class="stat-number">
+170
+</div>
+    <div class="stat-label">Total Samples</div>
+  </div>
+  <div class="stat-box green">
+    <div class="stat-number">
+19
+</div>
+    <div class="stat-label">Controls</div>
+  </div>
+  <div class="stat-box orange">
+    <div class="stat-number">4</div>
+    <div class="stat-label">Plates (Sheets)</div>
+  </div>
+  <div class="stat-box blue">
+    <div class="stat-number">2</div>
+    <div class="stat-label">Antigens (p24, gp120)</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Assay Structure</h3>
+  <p>The ADNK assay measures NK cell functional responses to HIV antigens (p24 and gp120) in the presence of participant plasma antibodies.</p>
+  
+  <h4>Gating Hierarchy (FlowJo)</h4>
+  <p>Total Events → Lymphocytes → Single Cells → Live CD3- → NK subsets:</p>
+  <ul>
+    <li><strong>CD56bright</strong> (~1.8% of CD3-) - Cytokine producers</li>
+    <li><strong>CD56dim</strong> (~84% of CD3-) - Main ADCC effectors</li>
+    <li><strong>non-NK</strong> (~11%) - CD3-CD56- cells</li>
+  </ul>
+  
+  <h4>Functional Markers Measured</h4>
+  <table>
+    <tr>
+      <th>Marker</th>
+      <th>Function</th>
+      <th>Interpretation</th>
+    </tr>
+    <tr><td>CD107a</td><td>Degranulation</td><td>Cytotoxic granule release (primary ADCC readout)</td></tr>
+    <tr><td>IFNγ</td><td>Cytokine</td><td>Antiviral inflammatory response</td></tr>
+    <tr><td>MIP1β</td><td>Chemokine</td><td>Immune cell recruitment</td></tr>
+    <tr><td>FasL</td><td>Death ligand</td><td>Alternative killing mechanism</td></tr>
+  </table>
+</div>
+
+<!-- ===== SECTION 2: CONTROLS ===== -->
+<h2 id="controls">2. Control Performance</h2>
+
+<div class="card">
+  <h3>Control Definitions</h3>
+  <div class="info-box">
+    <p><strong>Why controls matter:</strong> Controls establish the dynamic range of the assay and allow us to normalize across batches.</p>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Control</th>
+      <th>Purpose</th>
+      <th>Expected Response</th>
+    </tr>
+    <tr>
+      <td><strong>PBS</strong></td>
+      <td>No antibody baseline</td>
+      <td>LOWEST - Background/spontaneous NK activation only</td>
+    </tr>
+    <tr>
+      <td><strong>HIV neg plasma</strong></td>
+      <td>Negative control</td>
+      <td>LOW - No HIV-specific antibodies present</td>
+    </tr>
+    <tr>
+      <td><strong>N6 bnAb</strong></td>
+      <td>Positive control</td>
+      <td>HIGHEST - Known broadly neutralizing antibody, strong ADCC</td>
+    </tr>
+  </table>
+  
+  <p><strong>Expected hierarchy:</strong> PBS &lt; HIV neg plasma ≤ N6 bnAb</p>
+</div>
+
+<div class="card">
+  <h3>Control Hierarchy Check (CD56dim CD107a)</h3>
+  <table>
+    <tr>
+      <th>Plate</th>
+      <th>PBS</th>
+      <th>HIV neg</th>
+      <th>N6 bnAb</th>
+      <th>Hierarchy OK?</th>
+    </tr>
+
+    <tr>
+      <td>Batch 1 gp120</td>
+      <td>5.63%</td>
+      <td>5.96%</td>
+      <td>15.50%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+    <tr>
+      <td>Batch 1 p24</td>
+      <td>8.27%</td>
+      <td>10.30%</td>
+      <td>15.70%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+    <tr>
+      <td>Batch 2 gp120</td>
+      <td>3.80%</td>
+      <td>4.41%</td>
+      <td>5.08%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+    <tr>
+      <td>Batch 2 p24</td>
+      <td>3.63%</td>
+      <td>4.01%</td>
+      <td>4.17%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+  </table>
+  <img src="../02_QC_Plots/01_Control_Performance.png" alt="Control Performance Plot">
+</div>
+
+<!-- ===== SECTION 3: QC CHECKS ===== -->
+<h2 id="qc-checks">3. QC Checks</h2>
+
+<div class="card">
+  <h3>QC Check 1: Control Hierarchy</h3>
+  <div class="info-box">
+    <p><strong>What we check:</strong> PBS should have the lowest response (background), and N6 bnAb should have the highest (maximum ADCC).</p>
+    <p><strong>Why it matters:</strong> If this hierarchy is violated, the assay may have failed (e.g., contamination, pipetting error, reagent issues).</p>
+  </div>
+  <p><strong>Result:</strong> <span class="pass">
+4
+/
+4
+ plates pass</span></p>
+</div>
+
+<div class="card">
+  <h3>QC Check 2: N6 Positive Control Performance</h3>
+  <div class="info-box">
+    <p><strong>What we check:</strong> N6 bnAb should trigger strong degranulation (CD107a &gt; 5%).</p>
+    <p><strong>Why it matters:</strong> A weak positive control suggests the assay dynamic range is compressed, making it harder to detect real differences.</p>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Plate</th>
+      <th>N6 CD107a (%)</th>
+      <th>Threshold</th>
+      <th>Status</th>
+    </tr>
+
+    <tr>
+      <td>Batch 1 gp120</td>
+      <td>15.50%</td>
+      <td>&gt; 5%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+    <tr>
+      <td>Batch 1 p24</td>
+      <td>15.70%</td>
+      <td>&gt; 5%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+    <tr>
+      <td>Batch 2 gp120</td>
+      <td>5.08%</td>
+      <td>&gt; 5%</td>
+      <td class="pass">✓ PASS</td>
+    </tr>
+
+    <tr>
+      <td>Batch 2 p24</td>
+      <td>4.17%</td>
+      <td>&gt; 5%</td>
+      <td class="warn">⚠ LOW</td>
+    </tr>
+
+  </table>
+
+  <div class="warning-box">
+    <strong>⚠ Note:</strong> Batch 2 shows lower N6 response than Batch 1. This could indicate:
+    <ul>
+      <li>N6 stock degradation or concentration issue</li>
+      <li>Target cell coating variability</li>
+      <li>NK cell viability differences between batches</li>
+    </ul>
+    <p>The normalization strategy (below) accounts for this by expressing results as % of each plate's N6 maximum.</p>
+  </div>
+
+</div>
+
+<div class="card">
+  <h3>QC Check 3: Batch Effects</h3>
+  <div class="info-box">
+    <p><strong>What we check:</strong> Background (PBS) levels should be similar across batches. Large differences indicate technical variability.</p>
+    <p><strong>Threshold:</strong> &lt; 3-fold difference is acceptable.</p>
+  </div>
+  
+  <table>
+    <tr>
+      <th>Marker</th>
+      <th>Antigen</th>
+      <th>Batch 1 PBS</th>
+      <th>Batch 2 PBS</th>
+      <th>Fold Difference</th>
+      <th>Status</th>
+    </tr>
+
+    <tr>
+      <td>CD56dim_CD107a</td>
+      <td>gp120</td>
+      <td>5.63%</td>
+      <td>3.80%</td>
+      <td>1.5x</td>
+      <td class="pass">✓ OK</td>
+    </tr>
+
+    <tr>
+      <td>CD56dim_CD107a</td>
+      <td>p24</td>
+      <td>8.27%</td>
+      <td>3.63%</td>
+      <td>2.3x</td>
+      <td class="pass">✓ OK</td>
+    </tr>
+
+    <tr>
+      <td>CD56dim_IFNg</td>
+      <td>gp120</td>
+      <td>2.66%</td>
+      <td>0.15%</td>
+      <td>17.7x</td>
+      <td class="warn">⚠ BATCH EFFECT</td>
+    </tr>
+
+    <tr>
+      <td>CD56dim_IFNg</td>
+      <td>p24</td>
+      <td>1.33%</td>
+      <td>0.60%</td>
+      <td>2.2x</td>
+      <td class="pass">✓ OK</td>
+    </tr>
+
+  </table>
+  <img src="../02_QC_Plots/02_Batch_Distribution_RAW.png" alt="Batch Distribution RAW">
+</div>
+
+<div class="card">
+  <h3>QC Check 4: Sample-Level Quality</h3>
+  <div class="info-box">
+    <p><strong>What we check:</strong></p>
+    <ul>
+      <li>Minimum event count: 
+5000
+ events (statistical power)</li>
+      <li>Minimum lymphocyte frequency: 
+50
+% (sample quality)</li>
+    </ul>
+  </div>
+  
+  <div class="success-box">
+    <strong>Result:</strong> 
+170
+ / 
+170
+ samples pass QC (
+100
+%)
+  </div>
+  
+  <div class="img-grid">
+    <img src="../02_QC_Plots/03_Event_Counts.png" alt="Event Counts">
+    <img src="../02_QC_Plots/04_Lymphocyte_Freq.png" alt="Lymphocyte Frequency">
+  </div>
+</div>
+
+<!-- ===== SECTION 4: NORMALIZATION ===== -->
+<h2 id="normalization">4. Normalization Strategy</h2>
+
+<div class="card">
+  <h3>Why Normalize?</h3>
+  <div class="info-box">
+    <p>Raw percentages cannot be directly compared across plates/batches because:</p>
+    <ul>
+      <li>Background activation varies (PBS levels differ)</li>
+      <li>Maximum response varies (N6 levels differ)</li>
+      <li>Each plate may have different NK cell responsiveness</li>
+    </ul>
+  </div>
+  
+  <h3>Step 1: Background Subtraction</h3>
+  <p>Remove spontaneous NK activation (PBS background) from each sample:</p>
+  <div class="formula">
+    Sample_BGsub = Sample_raw - PBS_plate
+  </div>
+  <p>This isolates the antibody-dependent response.</p>
+  
+  <h3>Step 2: N6 Normalization</h3>
+  <p>Express each sample as a percentage of the maximum possible response (N6):</p>
+  <div class="formula">
+    Sample_normalized = (Sample_raw - PBS_plate) / (N6_plate - PBS_plate) × 100
+  </div>
+  <p>This gives "% of maximum ADCC response" which is comparable across all plates.</p>
+  
+  <div class="success-box">
+    <strong>Key point:</strong> Each plate uses its OWN controls for normalization. Batch 1 samples are normalized to Batch 1 controls, and Batch 2 samples to Batch 2 controls.
+  </div>
+</div>
+
+<!-- ===== SECTION 5: BATCH CORRECTION ===== -->
+<h2 id="batch-correction">5. Batch Correction Results</h2>
+
+<div class="card">
+  <h3>Did Normalization Work?</h3>
+  <p>We compare batch distributions before and after normalization. Successful normalization should:</p>
+  <ul>
+    <li>Reduce the fold-difference between batches</li>
+    <li>Make batch distributions overlap</li>
+    <li>Eliminate statistically significant batch effects</li>
+  </ul>
+  
+  <img src="../03_Batch_Correction/01_Batch_Correction_Comparison.png" alt="Batch Correction Comparison">
+
+
+  <h3>Statistical Confirmation</h3>
+  <table>
+    <tr>
+      <th>Stage</th>
+      <th>Antigen</th>
+      <th>Batch 1 Mean</th>
+      <th>Batch 2 Mean</th>
+      <th>Fold Diff</th>
+      <th>p-value</th>
+      <th>Significant?</th>
+    </tr>
+
+    <tr>
+      <td>1_Raw (%)</td>
+      <td>gp120</td>
+      <td>16.66</td>
+      <td>5.66</td>
+      <td>2.94x</td>
+      <td>0.0000</td>
+      <td class="warn">YES</td>
+    </tr>
+
+    <tr>
+      <td>1_Raw (%)</td>
+      <td>p24</td>
+      <td>11.81</td>
+      <td>3.93</td>
+      <td>3.01x</td>
+      <td>0.0000</td>
+      <td class="warn">YES</td>
+    </tr>
+
+    <tr>
+      <td>2_BG_Subtracted (%)</td>
+      <td>gp120</td>
+      <td>10.85</td>
+      <td>1.25</td>
+      <td>8.69x</td>
+      <td>0.0000</td>
+      <td class="warn">YES</td>
+    </tr>
+
+    <tr>
+      <td>2_BG_Subtracted (%)</td>
+      <td>p24</td>
+      <td>3.23</td>
+      <td>0.37</td>
+      <td>8.68x</td>
+      <td>0.0016</td>
+      <td class="warn">YES</td>
+    </tr>
+
+    <tr>
+      <td>3_N6_Normalized (% of max)</td>
+      <td>gp120</td>
+      <td>109.95</td>
+      <td>91.75</td>
+      <td>1.20x</td>
+      <td>0.0053</td>
+      <td class="warn">YES</td>
+    </tr>
+
+    <tr>
+      <td>3_N6_Normalized (% of max)</td>
+      <td>p24</td>
+      <td>43.51</td>
+      <td>65.98</td>
+      <td>1.52x</td>
+      <td>0.1016</td>
+      <td class="pass">NO</td>
+    </tr>
+
+  </table>
+  
+  <img src="../03_Batch_Correction/03_Normalized_Density_Overlay.png" alt="Normalized Density Overlay">
+
+</div>
+
+<!-- ===== SECTION 6: OUTPUTS ===== -->
+<h2 id="outputs">6. Output Files</h2>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>Folder</th>
+      <th>Contents</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><strong>01_QC_Reports/</strong></td>
+      <td>CSV files</td>
+      <td>Detailed QC check results for each plate</td>
+    </tr>
+    <tr>
+      <td><strong>02_QC_Plots/</strong></td>
+      <td>PNG images</td>
+      <td>Control performance, batch distributions, event counts</td>
+    </tr>
+    <tr>
+      <td><strong>03_Batch_Correction/</strong></td>
+      <td>PNG images + CSV</td>
+      <td>Before/after normalization comparisons</td>
+    </tr>
+    <tr>
+      <td><strong>04_Normalized_Data/</strong></td>
+      <td>XLSX files</td>
+      <td>Analysis-ready datasets with normalized values</td>
+    </tr>
+    <tr>
+      <td><strong>05_Cleaned_Metadata/</strong></td>
+      <td>CSV files</td>
+      <td>Subject metadata with issues flagged</td>
+    </tr>
+    <tr>
+      <td><strong>06_Summary/</strong></td>
+      <td>This report</td>
+      <td>QC summary and methodology documentation</td>
+    </tr>
+  </table>
+  
+  <h3>Key Output Files for Analysis</h3>
+  <ul>
+    <li><strong>ADNK_Analysis_Ready.xlsx</strong> - All QC-passed samples with raw + normalized columns</li>
+    <li><strong>CHER_Analysis_Ready.xlsx</strong> - CHER cohort only</li>
+    <li><strong>TARA_Analysis_Ready.xlsx</strong> - TARA cohort only</li>
+  </ul>
+  
+  <h3>Column Naming Convention</h3>
+  <table>
+    <tr>
+      <th>Suffix</th>
+      <th>Meaning</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>(none)</td>
+      <td>Raw value from FlowJo</td>
+      <td>NK CD56dim/CD107a | Freq. of Parent</td>
+    </tr>
+    <tr>
+      <td>_PBS</td>
+      <td>PBS control value for this plate</td>
+      <td>...CD107a | Freq. of Parent_PBS</td>
+    </tr>
+    <tr>
+      <td>_BGsub</td>
+      <td>Background-subtracted</td>
+      <td>...CD107a | Freq. of Parent_BGsub</td>
+    </tr>
+    <tr>
+      <td>_N6</td>
+      <td>N6 control value for this plate</td>
+      <td>...CD107a | Freq. of Parent_N6</td>
+    </tr>
+    <tr>
+      <td>_NormN6</td>
+      <td>Normalized to N6 (% of max)</td>
+      <td>...CD107a | Freq. of Parent_NormN6</td>
+    </tr>
+  </table>
+</div>
+
+<footer>
+  <p>Report generated by ADNK QC Pipeline | 
+2026-04-09 11:51:24
+</p>
+</footer>
+
+</body>
+</html>

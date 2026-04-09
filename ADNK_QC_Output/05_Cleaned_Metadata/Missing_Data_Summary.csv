@@ -1,0 +1,3 @@
+"Cohort","N_Subjects","N_Sample_Rows","Age_Column","Missing_Age","Missing_Gender","Missing_Phase"
+"CHER",22,124,"Age (weeks)",0,0,0
+"TARA",23,46,"Age (months)",23,46,NA

@@ -1,0 +1,7 @@
+"Cohort","Batch","Antigen","Total","Passed","Failed_Events","Failed_Lymph","Pass_Rate"
+"CHER","Batch 1","gp120",42,42,0,0,100
+"CHER","Batch 1","p24",42,42,0,0,100
+"CHER","Batch 2","gp120",20,20,0,0,100
+"CHER","Batch 2","p24",20,20,0,0,100
+"TARA","Batch 2","gp120",23,23,0,0,100
+"TARA","Batch 2","p24",23,23,0,0,100

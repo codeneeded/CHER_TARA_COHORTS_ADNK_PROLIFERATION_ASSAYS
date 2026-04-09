@@ -1,0 +1,5 @@
+"Batch","Antigen","N6_CD107a","N6_OK","Status"
+"Batch 1","gp120",0.155,TRUE,"PASS"
+"Batch 1","p24",0.157,TRUE,"PASS"
+"Batch 2","gp120",0.0508,TRUE,"PASS"
+"Batch 2","p24",0.0417,FALSE,"LOW_RESPONSE"

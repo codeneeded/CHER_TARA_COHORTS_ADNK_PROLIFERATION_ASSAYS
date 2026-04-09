@@ -1,0 +1,5 @@
+"Check","Passed","Total","Pass_Rate_Pct"
+"Control Hierarchy",4,4,100
+"N6 Positive Control",3,4,75
+"Batch Effects (raw)",3,4,75
+"Sample QC",170,170,100
