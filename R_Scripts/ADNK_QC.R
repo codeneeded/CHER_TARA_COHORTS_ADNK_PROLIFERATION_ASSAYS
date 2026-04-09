@@ -766,12 +766,28 @@ export_cleaned_metadata <- function(data, output_dir) {
 }
 
 # =============================================================================
-# FUNCTION: Summary report (HTML)
+# FUNCTION: Summary report (HTML) - Self-contained with embedded images
 # =============================================================================
+
+# Helper function to encode image as base64
+encode_image_base64 <- function(image_path) {
+  if (file.exists(image_path)) {
+    img_data <- base64enc::base64encode(image_path)
+    return(paste0("data:image/png;base64,", img_data))
+  } else {
+    return("")
+  }
+}
 
 generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check, 
                                     sample_qc, batch_correction_stats, control_stats,
                                     output_dir, plots_dir, batch_corr_dir) {
+  
+  # Check for base64enc package
+  if (!requireNamespace("base64enc", quietly = TRUE)) {
+    install.packages("base64enc")
+  }
+  library(base64enc)
   
   samples <- data %>% filter(!IsControl)
   
@@ -780,6 +796,15 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
   n_cher_samples <- sum(samples$Cohort == "CHER")
   n_tara_subjects <- n_distinct(samples$PID[samples$Cohort == "TARA"])
   n_tara_samples <- sum(samples$Cohort == "TARA")
+  
+  # Encode all images as base64
+  message("Embedding images in HTML report...")
+  img_control_perf <- encode_image_base64(file.path(plots_dir, "01_Control_Performance.png"))
+  img_batch_raw <- encode_image_base64(file.path(plots_dir, "02_Batch_Distribution_RAW.png"))
+  img_event_counts <- encode_image_base64(file.path(plots_dir, "03_Event_Counts.png"))
+  img_lymph_freq <- encode_image_base64(file.path(plots_dir, "04_Lymphocyte_Freq.png"))
+  img_batch_corr <- encode_image_base64(file.path(batch_corr_dir, "01_Batch_Correction_Comparison.png"))
+  img_density <- encode_image_base64(file.path(batch_corr_dir, "03_Normalized_Density_Overlay.png"))
   
   # Build HTML report
   html <- c('
@@ -912,6 +937,7 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
 
 <h1>ADNK Assay QC Report</h1>
 <p><strong>Generated:</strong> ', format(Sys.time(), "%Y-%m-%d %H:%M:%S"), '</p>
+<p><em>This is a self-contained report - all images are embedded and no external files are needed.</em></p>
 
 <div class="toc card">
   <h3>Contents</h3>
@@ -955,6 +981,16 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
       <td>Does viral suppression status affect ADCC?</td>
     </tr>
   </table>
+  
+  <div class="info-box">
+    <p><strong>Note on data structure:</strong></p>
+    <ul>
+      <li><strong>Batch 1:</strong> CHER samples only (42 per antigen)</li>
+      <li><strong>Batch 2:</strong> CHER (20) + TARA (23) samples per antigen</li>
+      <li><strong>CHER age:</strong> Recorded in weeks in the source data</li>
+      <li><strong>TARA age:</strong> Derived from "Timepoint relative to phase" column (values are months: 36-71)</li>
+    </ul>
+  </div>
 </div>
 
 <div class="summary-grid">
@@ -1008,7 +1044,8 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
 <div class="card">
   <h3>Control Definitions</h3>
   <div class="info-box">
-    <p><strong>Why controls matter:</strong> Controls establish the dynamic range of the assay and allow us to normalize across batches.</p>
+    <p><strong>Why controls matter:</strong> Controls establish the dynamic range of the assay and allow us to normalize across batches. Each plate has its own set of controls.</p>
+    <p><strong>Note:</strong> Batch 1 had triplicate PBS controls (averaged for analysis); Batch 2 had single PBS controls.</p>
   </div>
   
   <table>
@@ -1064,8 +1101,14 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
   }
   
   html <- c(html, '
-  </table>
-  <img src="../02_QC_Plots/01_Control_Performance.png" alt="Control Performance Plot">
+  </table>')
+  
+  # Add embedded image
+  if (nchar(img_control_perf) > 0) {
+    html <- c(html, paste0('<img src="', img_control_perf, '" alt="Control Performance Plot">'))
+  }
+  
+  html <- c(html, '
 </div>
 
 <!-- ===== SECTION 3: QC CHECKS ===== -->
@@ -1161,8 +1204,14 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
   }
   
   html <- c(html, '
-  </table>
-  <img src="../02_QC_Plots/02_Batch_Distribution_RAW.png" alt="Batch Distribution RAW">
+  </table>')
+  
+  # Add embedded image
+  if (nchar(img_batch_raw) > 0) {
+    html <- c(html, paste0('<img src="', img_batch_raw, '" alt="Batch Distribution RAW">'))
+  }
+  
+  html <- c(html, '
 </div>
 
 <div class="card">
@@ -1170,7 +1219,7 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
   <div class="info-box">
     <p><strong>What we check:</strong></p>
     <ul>
-      <li>Minimum event count: ', QC_THRESHOLDS$MIN_EVENT_COUNT, ' events (statistical power)</li>
+      <li>Minimum event count: ', format(QC_THRESHOLDS$MIN_EVENT_COUNT, big.mark=","), ' events (statistical power)</li>
       <li>Minimum lymphocyte frequency: ', QC_THRESHOLDS$MIN_LYMPHOCYTE_FREQ*100, '% (sample quality)</li>
     </ul>
   </div>
@@ -1179,9 +1228,17 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
     <strong>Result:</strong> ', sum(sample_qc$QC_Pass), ' / ', nrow(sample_qc), ' samples pass QC (', round(mean(sample_qc$QC_Pass)*100, 1), '%)
   </div>
   
-  <div class="img-grid">
-    <img src="../02_QC_Plots/03_Event_Counts.png" alt="Event Counts">
-    <img src="../02_QC_Plots/04_Lymphocyte_Freq.png" alt="Lymphocyte Frequency">
+  <div class="img-grid">')
+  
+  # Add embedded images
+  if (nchar(img_event_counts) > 0) {
+    html <- c(html, paste0('<img src="', img_event_counts, '" alt="Event Counts">'))
+  }
+  if (nchar(img_lymph_freq) > 0) {
+    html <- c(html, paste0('<img src="', img_lymph_freq, '" alt="Lymphocyte Frequency">'))
+  }
+  
+  html <- c(html, '
   </div>
 </div>
 
@@ -1228,10 +1285,12 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
     <li>Reduce the fold-difference between batches</li>
     <li>Make batch distributions overlap</li>
     <li>Eliminate statistically significant batch effects</li>
-  </ul>
+  </ul>')
   
-  <img src="../03_Batch_Correction/01_Batch_Correction_Comparison.png" alt="Batch Correction Comparison">
-')
+  # Add embedded image
+  if (nchar(img_batch_corr) > 0) {
+    html <- c(html, paste0('<img src="', img_batch_corr, '" alt="Batch Correction Comparison">'))
+  }
   
   # Add batch correction statistics if available
   if (!is.null(batch_correction_stats) && nrow(batch_correction_stats) > 0) {
@@ -1265,9 +1324,12 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
     }
     
     html <- c(html, '
-  </table>
-  
-  <img src="../03_Batch_Correction/03_Normalized_Density_Overlay.png" alt="Normalized Density Overlay">')
+  </table>')
+    
+    # Add embedded density image
+    if (nchar(img_density) > 0) {
+      html <- c(html, paste0('<img src="', img_density, '" alt="Normalized Density Overlay">'))
+    }
   }
   
   html <- c(html, '
@@ -1359,6 +1421,7 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
 
 <footer>
   <p>Report generated by ADNK QC Pipeline | ', format(Sys.time(), "%Y-%m-%d %H:%M:%S"), '</p>
+  <p><em>This is a self-contained HTML file with all images embedded - no external files required.</em></p>
 </footer>
 
 </body>
@@ -1367,7 +1430,7 @@ generate_summary_report <- function(data, hierarchy_check, n6_check, batch_check
   # Write HTML file
   html_file <- file.path(output_dir, "ADNK_QC_Report.html")
   writeLines(html, html_file)
-  message("Saved HTML report to: ", html_file)
+  message("Saved self-contained HTML report to: ", html_file)
   
   # Also save a simple CSV summary
   qc_table <- data.frame(
